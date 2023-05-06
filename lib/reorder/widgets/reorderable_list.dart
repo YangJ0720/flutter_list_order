@@ -13,7 +13,7 @@ import 'package:flutter/scheduler.dart';
 
 ///
 typedef DragStartCallback = void Function();
-typedef DragUpdateCallback = void Function(int fromIndex, int toIndex);
+typedef DragMergeCallback = void Function(int fromIndex, int toIndex);
 /// A callback used by [ReorderableList] to report that a list item has moved
 /// to a new position in the list.
 ///
@@ -393,7 +393,7 @@ class SliverReorderableList extends StatefulWidget {
     required this.itemBuilder,
     required this.itemCount,
     this.onDragStart,
-    this.onDragUpdate,
+    this.onDragMerge,
     required this.onReorder,
     this.itemExtent,
     this.prototypeItem,
@@ -413,7 +413,7 @@ class SliverReorderableList extends StatefulWidget {
 
   ///
   final DragStartCallback? onDragStart;
-  final DragUpdateCallback? onDragUpdate;
+  final DragMergeCallback? onDragMerge;
 
   /// {@macro flutter.widgets.reorderable_list.onReorder}
   final ReorderCallback onReorder;
@@ -699,13 +699,18 @@ class SliverReorderableListState extends State<SliverReorderableList> with Ticke
   void _dropCompleted() {
     final int fromIndex = _dragIndex!;
     final int toIndex = _insertIndex!;
-    if (fromIndex != toIndex) {
+    if (fromIndex == toIndex) {
+      if (_items[fromIndex]?._isTarget == true) {
+        widget.onDragMerge?.call(fromIndex, toIndex);
+      }
+    } else {
       // TODO:
       // widget.onReorder.call(fromIndex, toIndex);
-      // TODO:
-      var fromItem = _items[fromIndex];
-      if (fromItem?._isTarget == true) {
-        widget.onDragUpdate?.call(fromIndex, toIndex);
+      //
+      if (_items[fromIndex]?._isTarget == true) {
+        widget.onDragMerge?.call(fromIndex, toIndex);
+      } else if (_items[toIndex]?._isTarget == true) {
+        widget.onDragMerge?.call(fromIndex, toIndex);
       } else {
         widget.onReorder.call(fromIndex, toIndex);
       }

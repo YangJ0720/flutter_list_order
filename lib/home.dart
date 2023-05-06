@@ -43,8 +43,8 @@ class _HomeState extends State<Home> {
               //
               _controller.sink.add(data);
             },
-            onDragStart: () => debugPrint('onDragStart'),
-            onDragUpdate: (int fromIndex, int toIndex) {
+            onDragStart: () {},
+            onDragMerge: (int fromIndex, int toIndex) {
               debugPrint('onDragUpdate');
               data.removeAt(fromIndex);
               _controller.sink.add(data);
